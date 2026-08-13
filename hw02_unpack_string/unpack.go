@@ -18,20 +18,20 @@ func Unpack(s string) (string, error) {
 	}
 	out := strings.Builder{}
 	slash := false
+	dig := false
 	prev := ""
 
-	for i, r := range []rune(s) {
+	for _, r := range []rune(s) {
 		if unicode.IsDigit(r) {
 			if slash {
 				prev = string(r)
 				slash = false
 				continue
 			}
-			if i+1 < len([]rune(s)) {
-				if unicode.IsDigit([]rune(s)[i+1]) {
-					return out.String(), ErrInvalidString
-				}
+			if dig {
+				return out.String(), ErrInvalidString
 			}
+			dig = true
 			count, err := strconv.Atoi(string(r))
 			if err != nil {
 				return out.String(), ErrInvalidString
@@ -41,6 +41,8 @@ func Unpack(s string) (string, error) {
 			}
 			prev = ""
 			continue
+		} else {
+			dig = false
 		}
 		if slash {
 			if slash {
